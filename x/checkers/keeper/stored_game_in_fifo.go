@@ -6,53 +6,47 @@ import (
 )
 
 func (k Keeper) RemoveFromFifo(ctx sdk.Context, game *types.StoredGame, info *types.SystemInfo) {
-
-	// * if this game is not the last one
+	// Does it have a predecessor?
 	if game.BeforeIndex != types.NoFifoIndex {
 		beforeElement, found := k.GetStoredGame(ctx, game.BeforeIndex)
 		if !found {
 			panic("Element before in Fifo was not found")
 		}
-
 		beforeElement.AfterIndex = game.AfterIndex
 		k.SetStoredGame(ctx, beforeElement)
-
-		// * if there are no games after this one
-		// * then our current element is the tail
 		if game.AfterIndex == types.NoFifoIndex {
 			info.FifoTailIndex = beforeElement.Index
 		}
-		// * is the game at the head ?
+		// Is it at the FIFO head?
 	} else if info.FifoHeadIndex == game.Index {
 		info.FifoHeadIndex = game.AfterIndex
 	}
+	// Does it have a successor?
 	if game.AfterIndex != types.NoFifoIndex {
 		afterElement, found := k.GetStoredGame(ctx, game.AfterIndex)
 		if !found {
-			panic("element after in Fifo was not found")
+			panic("Element after in Fifo was not found")
 		}
-
 		afterElement.BeforeIndex = game.BeforeIndex
 		k.SetStoredGame(ctx, afterElement)
-
 		if game.BeforeIndex == types.NoFifoIndex {
 			info.FifoHeadIndex = afterElement.Index
 		}
-	} else if info.FifoHeadIndex == game.Index {
+		// Is it at the FIFO tail?
+	} else if info.FifoTailIndex == game.Index {
 		info.FifoTailIndex = game.BeforeIndex
 	}
-
 	game.BeforeIndex = types.NoFifoIndex
 	game.AfterIndex = types.NoFifoIndex
 }
 
-func (k Keeper) sendToFifoTail(ctx sdk.Context, game *types.StoredGame, info *types.SystemInfo) {
+func (k Keeper) SendToFifoTail(ctx sdk.Context, game *types.StoredGame, info *types.SystemInfo) {
 	if info.FifoHeadIndex == types.NoFifoIndex &&
 		info.FifoTailIndex == types.NoFifoIndex {
 		game.BeforeIndex = types.NoFifoIndex
 		game.AfterIndex = types.NoFifoIndex
 		info.FifoHeadIndex = game.Index
-		info.FifoHeadIndex = game.Index
+		info.FifoTailIndex = game.Index
 	} else if info.FifoHeadIndex == types.NoFifoIndex || info.FifoTailIndex == types.NoFifoIndex {
 		panic("Fifo should have both head and tail or none")
 	} else if info.FifoHeadIndex == game.Index {
