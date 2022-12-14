@@ -64,7 +64,6 @@ func (k msgServer) PlayMove(goCtx context.Context, msg *types.MsgPlayMove) (*typ
 		panic("SystemInfo was not found")
 	}
 	k.Keeper.SendToFifoTail(ctx, &storedGame, &systemInfo)
-
 	storedGame.MoveCount++
 	k.Keeper.SetStoredGame(ctx, storedGame)
 	k.Keeper.SetSystemInfo(ctx, systemInfo)
