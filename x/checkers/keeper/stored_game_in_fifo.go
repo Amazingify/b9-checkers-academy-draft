@@ -45,3 +45,31 @@ func (k Keeper) RemoveFromFifo(ctx sdk.Context, game *types.StoredGame, info *ty
 	game.BeforeIndex = types.NoFifoIndex
 	game.AfterIndex = types.NoFifoIndex
 }
+
+func (k Keeper) sendToFifoTail(ctx sdk.Context, game *types.StoredGame, info *types.SystemInfo) {
+	if info.FifoHeadIndex == types.NoFifoIndex &&
+		info.FifoTailIndex == types.NoFifoIndex {
+		game.BeforeIndex = types.NoFifoIndex
+		game.AfterIndex = types.NoFifoIndex
+		info.FifoHeadIndex = game.Index
+		info.FifoHeadIndex = game.Index
+	} else if info.FifoHeadIndex == types.NoFifoIndex || info.FifoTailIndex == types.NoFifoIndex {
+		panic("Fifo should have both head and tail or none")
+	} else if info.FifoHeadIndex == game.Index {
+
+	} else {
+		k.RemoveFromFifo(ctx, game, info)
+
+		// * geting the tail node
+		currentTail, found := k.GetStoredGame(ctx, info.FifoTailIndex)
+		if !found {
+			panic("Current Fifo tail was not found")
+		}
+		// * setting the node tail to   game <-after- tail
+		currentTail.AfterIndex = game.Index
+		k.SetStoredGame(ctx, currentTail)
+		// * setting the node game    somegame <--after- game -before-> tail
+		game.BeforeIndex = currentTail.Index
+		info.FifoTailIndex = game.Index
+	}
+}
