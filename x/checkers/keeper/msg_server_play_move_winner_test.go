@@ -10,7 +10,7 @@ import (
 )
 
 func TestPlayMoveUpToWinner(t *testing.T) {
-	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, keeper, context, _, _ := setupMsgServerWithOneGameForPlayMove(t)
 	ctx := sdk.UnwrapSDKContext(context)
 
 	testutil.PlayAllMoves(t, msgServer, context, "1", testutil.Game1Moves)

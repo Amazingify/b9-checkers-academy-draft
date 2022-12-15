@@ -69,6 +69,11 @@ func (k msgServer) PlayMove(goCtx context.Context, msg *types.MsgPlayMove) (*typ
 		panic("SystemInfo was not found")
 	}
 
+	err = k.Keeper.CollectWager(ctx, &storedGame)
+	if err != nil {
+		return nil, err
+	}
+
 	lastBoard := game.String()
 	if storedGame.Winner == rules.PieceStrings[rules.NO_PLAYER] {
 		k.Keeper.SendToFifoTail(ctx, &storedGame, &systemInfo)
@@ -76,6 +81,7 @@ func (k msgServer) PlayMove(goCtx context.Context, msg *types.MsgPlayMove) (*typ
 	} else {
 		k.Keeper.RemoveFromFifo(ctx, &storedGame, &systemInfo)
 		storedGame.Board = ""
+		k.Keeper.MustPayWinnings(ctx, &storedGame)
 	}
 
 	storedGame.MoveCount++

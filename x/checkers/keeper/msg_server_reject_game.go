@@ -37,6 +37,7 @@ func (k msgServer) RejectGame(goCtx context.Context, msg *types.MsgRejectGame) (
 	if !found {
 		panic("SystemInfo not found")
 	}
+	k.Keeper.MustRefundWager(ctx, &storedGame)
 	k.Keeper.RemoveFromFifo(ctx, &storedGame, &systemInfo)
 	k.Keeper.RemoveStoredGame(ctx, msg.GameIndex)
 	k.Keeper.SetSystemInfo(ctx, systemInfo)

@@ -11,12 +11,14 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
+// * this is where you have the reference to other keepers.
 type (
 	Keeper struct {
 		cdc        codec.BinaryCodec
 		storeKey   sdk.StoreKey
 		memKey     sdk.StoreKey
 		paramstore paramtypes.Subspace
+		bank       types.BankEscrowKeeper
 	}
 )
 
@@ -25,6 +27,7 @@ func NewKeeper(
 	storeKey,
 	memKey sdk.StoreKey,
 	ps paramtypes.Subspace,
+	bank types.BankEscrowKeeper,
 
 ) *Keeper {
 	// set KeyTable if it has not already been set
@@ -38,6 +41,7 @@ func NewKeeper(
 		storeKey:   storeKey,
 		memKey:     memKey,
 		paramstore: ps,
+		bank:       bank,
 	}
 }
 

@@ -162,14 +162,17 @@ var (
 	)
 
 	// module account permissions
+	// * need to look more into the module account manager thinf
 	maccPerms = map[string][]string{
 		authtypes.FeeCollectorName:     nil,
 		distrtypes.ModuleName:          nil,
+		checkersmoduletypes.ModuleName: nil,
 		minttypes.ModuleName:           {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -394,6 +397,7 @@ func New(
 		keys[checkersmoduletypes.StoreKey],
 		keys[checkersmoduletypes.MemStoreKey],
 		app.GetSubspace(checkersmoduletypes.ModuleName),
+		app.BankKeeper,
 	)
 	checkersModule := checkersmodule.NewAppModule(appCodec, app.CheckersKeeper, app.AccountKeeper, app.BankKeeper)
 
