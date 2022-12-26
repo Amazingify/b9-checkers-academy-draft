@@ -88,6 +88,7 @@ func (k msgServer) PlayMove(goCtx context.Context, msg *types.MsgPlayMove) (*typ
 	storedGame.Deadline = types.FormatDeadline(types.GetNextDeadline(ctx))
 	k.Keeper.SetStoredGame(ctx, storedGame)
 	k.Keeper.SetSystemInfo(ctx, systemInfo)
+	ctx.GasMeter().ConsumeGas(types.PlayMoveGas, "Play a move")
 	// TODO: Handling the message
 	_ = ctx
 	ctx.EventManager().EmitEvent(
